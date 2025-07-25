@@ -5,13 +5,13 @@ var ftpDeploy = new FtpDeploy();
 
 var config = {
     host : "82.29.171.223",
-    user : "u242434967.hsmaster.ai",
+    user : "u242434967.hsmaster",
     password : "R@8d4E6YE;:lH|lg",
     port: 21,
     localRoot: __dirname + '/build',
     remoteRoot: '/',
     include: ['*'],
-    //exclude: ["*.png","*.jpeg", "*.jpg","*.svg", "*.ttf","*.json"],
+    exclude: ["*.png","*.jpeg", "*.jpg","*.svg", "*.ttf","*.json"],
     //exclude: [""],
     deleteRemote: false
 }

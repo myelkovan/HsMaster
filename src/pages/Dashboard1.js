@@ -128,6 +128,7 @@ function of_islem(row){
 }
 
 function of_close(){
+
         paid_update("x", user.token).then((response) => {
             navigate('/dashboard1/?reload=true', {state: {fromOrder: "YES"}})
             //refreshDeposit()
@@ -495,7 +496,7 @@ return (
                                 </div>
                                 <div className="flex-shrink-0">
                                     <div className="d-flex gap-3 align-items-center">
-                                        <button type="button" className="btn-close btn-close-white" onClick={() => setPayModal(false)} id="createMemberBtn-close" data-bs-dismiss="modal" aria-label={props.t("Close")}></button>
+                                        <button type="button" className="btn-close btn-close-white" onClick={() => of_close()} id="createMemberBtn-close" data-bs-dismiss="modal" aria-label={props.t("Close")}></button>
                                     </div>
                                 </div>
                             </div>
