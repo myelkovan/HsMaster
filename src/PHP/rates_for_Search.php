@@ -1,19 +1,19 @@
 <?php
 $allowed_referers = [
     'https://jetbasket.us',
-    'https://login.hsmaster.ai'
+    'https://shop.jetbasket.us'
 ];
 
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
 $referer_host = parse_url($referer, PHP_URL_HOST);
 
-$allowed_hosts = array_map(function ($url) {
+$allowed_hosts = array_map(function($url) {
     return parse_url($url, PHP_URL_HOST);
 }, $allowed_referers);
 
 if (!in_array($referer_host, $allowed_hosts)) {
     http_response_code(403);
-    echo "Access denied.";
+    echo "Access denied." ;
     exit;
 }
 
@@ -52,7 +52,7 @@ $price              =  $conn->escape_string($_GET["price"]);
 $service_code_param = null; //$conn->escape_string($_GET["service_code"]);
 $customTax = [];
 
-$country_id = "36";  // $conn->escape_string($_GET["country_id"]);
+$country_id ="36";  // $conn->escape_string($_GET["country_id"]);
 
 $to_country_code = $conn->escape_string($_GET["toCountry"]);
 
@@ -125,30 +125,12 @@ if ($price !== null) {
 
 
 $ByelabelService = new ByelabelService(null, null);
-$Rates = $ByelabelService->getRates_FromByeLabel(
-    $from_country_code,
-    $from_zipcode,
-    $to_country_code,
-    $to_zipcode,
-    $from_state,
-    $to_state,
-    $from_city,
-    $to_city,
-    $from_street_1,
-    $from_street_2,
-    $from_street_3,
-    $to_street_1,
-    $to_street_2,
-    $to_street_3,
-    $weight,
-    $length,
-    $width,
-    $height,
-    $carrier_id,
-    $carrier_code,
-    $carrier_service,
-    $carrier_packaging
-);
+$Rates = $ByelabelService->getRates_FromByeLabel($from_country_code,$from_zipcode,$to_country_code,$to_zipcode,
+    $from_state,$to_state,$from_city,$to_city,
+    $from_street_1,$from_street_2,$from_street_3,
+    $to_street_1,$to_street_2, $to_street_3,
+    $weight,    $length,    $width,    $height,
+    $carrier_id,    $carrier_code,    $carrier_service,    $carrier_packaging);
 
 //var_dump($Rates);
 
@@ -156,20 +138,20 @@ $Rates = $ByelabelService->getRates_FromByeLabel(
 
 //Bylabeldan gelen data uzerine kar oranlarini ve custem fee yi ekler
 foreach ($Rates as &$rate) {
-
+   
     $find = false;
 
 
 
     foreach ($profitValues as $profitValue) {
-
+        
         if ($profitValue['service_code'] == null || $rate['service_code'] == $profitValue['service_code']) {
             $find = true;
-
+           
             // Calculate the shipment cost
             $calculated_price =  floatval($rate['shipment_cost']) + ((floatval($rate['shipment_cost']) * (floatval($profitValue['percentage_value']) / 100)) + floatval($profitValue['fixed_value']));
             $rate['shipment_cost'] = $calculated_price;
-
+            
             //carrierCode null ise tum carrierler isteniyor yani priceden ekraninda geliyoruz, calculated degil customer fiyat hesapliyor
             if ($service_code_param == null) {
                 $product_price = $product_total_price;
@@ -188,9 +170,9 @@ foreach ($Rates as &$rate) {
 
                 $calculated_custom_fee =  ($product_price / 100) * floatval($customTax[0]['tax_percentage']);
             }
-
+            
             $rate['custom_fee'] = $calculated_custom_fee;
-
+           
             break;
         }
     }

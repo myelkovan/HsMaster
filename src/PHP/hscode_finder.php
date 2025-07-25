@@ -17,15 +17,15 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json");
 
-
+ 
 
 function getGtipSearch($language, $hs_search, $hs_param_type)
 {
-
+    
     //$TAMurl = "https://www.tariffnumber.com/api/v1/cnSuggest?year=2025&lang=en&term=Toilet%20Paper";
     $url = "https://www.tariffnumber.com/api/v1/cnSuggest";
     $params = [
-        'year' => '2025',
+        'year' => '2025',    
         'lang' => 'en',  // "tr","en" vb.
         'term' => $hs_search   //  aranacak değer "toilet paper" vb.
     ];
@@ -44,60 +44,18 @@ function getGtipSearch($language, $hs_search, $hs_param_type)
     // İsteği çalıştır
     $response = curl_exec($ch);
 
-    // Hata kontrolü - JSON formatında döndür
-    if ($response === false) {
-        echo json_encode(["error" => "API çağrısı başarısız!", "details" => curl_error($ch)]);
-        curl_close($ch);
-        exit;
-    }
-
-    // cURL oturumunu kapat
+   // Hata kontrolü - JSON formatında döndür
+if ($response === false) {
+    echo json_encode(["error" => "API çağrısı başarısız!", "details" => curl_error($ch)]);
     curl_close($ch);
-
-    // JSON formatında döndür
-    //echo $response;
-
-
-
-    // Yanıtı döndür
-    return $response;
+    exit;
 }
 
+// cURL oturumunu kapat
+curl_close($ch);
 
-function getHsCodeRealOpenAI_API($description)
-{
-
-    // $url = "http://localhost/JB/PHP/hscode_finder_AI.php";
-    // $params = "description=" . $description ;  //  aranacak değer "toilet paper" vb.
-
-    //$url = "http://localhost/JB/PHP/hscode_finder_AI.php?description=" . urlencode($description);
-    $url = "https://hsmaster.ai/HSMASTER/PHP/hscode_finder_AI.php?description=" . urlencode($description);
-    // URL ile parametreleri birleştir
-    $urlWithParams = $url; //. '?' . ($params);
-    //echo "url" . $url;
-    // cURL oturumu başlat
-    $ch = curl_init();
-
-    // cURL ayarları
-    curl_setopt($ch, CURLOPT_URL, $urlWithParams);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Yanıtı döndür
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL doğrulamasını devre dışı bırak
-
-    // İsteği çalıştır
-    $response = curl_exec($ch);
-
-    // Hata kontrolü - JSON formatında döndür
-    if ($response === false) {
-        echo json_encode(["error" => "API çağrısı başarısız!", "details" => curl_error($ch)]);
-        curl_close($ch);
-        exit;
-    }
-
-    // cURL oturumunu kapat
-    curl_close($ch);
-
-    // JSON formatında döndür
-    //echo $response;
+// JSON formatında döndür
+//echo $response;
 
 
 
@@ -116,15 +74,12 @@ if (!isset($_GET["value"])) {
 
 $value    = $_GET["value"];
 //echo $value;
-if ($value === "") {
+if ($value==="") {
     $value = "toilet paper";
 }
 // Örnek kullanım
 
-//$response = getGtipSearch('en', $value, '2');
-$response = getHsCodeRealOpenAI_API($value);
-
-//echo "response" . $response;
+$response = getGtipSearch('en', $value, '2');
 
 $jsonResponse = json_decode($response, true);
 
@@ -185,65 +140,102 @@ function getHSCode_from_CloudeAI($productDescription)
 //$hsCode = getHSCode_from_CloudeAI($productDescription);
 //echo 'HS Kodu: ' . $hsCode;
 
-
-
-
-
-function getHSCode_from_CloudeAI_2($productDescription)
+function getHSCode_from_OpenAI($productDescription)
 {
-
-    $url = 'https://api.anthropic.com/v1/messages';
-
-    // Your OpenAI API key
-    $apiKey = '[API KEY]';
-
-    // Claude
-    $model = 'claude-instant-1.2';
-    $maxTokens = 2048;
-    $temperature = 0.6;
-    $messages = [
-        [
-            'role' => 'system',
-            'content' => "Aşağıdaki ürün bilgilerine dayanarak HS kodunu tahmin et:\n\nÜrün: $productDescription\n\nHS Kodu:"
-        ]
-    ];
+    $apiKey = 'YOUR_OPENAI_API_KEY'; // OpenAI API anahtarınızı buraya ekleyin
+    $url = 'https://api.openai.com/v1/engines/davinci/completions'; // API URL'si
 
     $data = [
-        'model' => $model,
-        'max_tokens' => $maxTokens,
-        'temperature' => $temperature,
-        'messages' => $messages
+        'prompt' => "Aşağıdaki ürün bilgilerine dayanarak HS kodunu tahmin et:\n\nÜrün: $productDescription\n\nHS Kodu:",
+        'max_tokens' => 10,
+        'temperature' => 0.5,
     ];
 
-    $jsonData = json_encode($data);
-
-    $curl = curl_init();
-
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => $jsonData,
-        CURLOPT_HTTPHEADER => [
-            'x-api-key: ' . $apiKey,
-            'anthropic-version: 2023-06-01',
-            'content-type: application/json'
+    $options = [
+        'http' => [
+            'header'  => [
+                "Authorization: Bearer $apiKey",
+                "Content-Type: application/json"
+            ],
+            'method'  => 'POST',
+            'content' => json_encode($data),
         ],
-    ]);
+    ];
 
-    $response = curl_exec($curl);
+    $context  = stream_context_create($options);
+    $response = file_get_contents($url, false, $context);
 
-    curl_close($curl);
+    if ($response === FALSE) {
+        echo 'Error occurred while fetching HS code.';
+        return null;
+    }
 
     $responseData = json_decode($response, true);
+    return trim($responseData['choices'][0]['text']);
+}
 
-    $content = $responseData['content'][0]['text'];
+// üstteki fonksiyonu çalıştırmak için aşağıdakileri aktif et
+//$productDescription = 'Örnek ürün açıklaması';
+//$hsCode = getHSCode_from_OpenAI($productDescription);
+//echo 'HS Kodu: ' . $hsCode;
+
+
+
+function getHSCode_from_CloudeAI_2($productDescription){
+
+        $url = 'https://api.anthropic.com/v1/messages';
+
+        // Your OpenAI API key
+        $apiKey = '[API KEY]';
+
+        // Claude
+        $model = 'claude-instant-1.2';
+        $maxTokens = 2048;
+        $temperature = 0.6;
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => "Aşağıdaki ürün bilgilerine dayanarak HS kodunu tahmin et:\n\nÜrün: $productDescription\n\nHS Kodu:"
+            ]
+        ];
+
+        $data = [
+            'model' => $model,
+            'max_tokens' => $maxTokens,
+            'temperature' => $temperature,
+            'messages' => $messages
+        ];
+
+        $jsonData = json_encode($data);
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $jsonData,
+            CURLOPT_HTTPHEADER => [
+                'x-api-key: ' . $apiKey,
+                'anthropic-version: 2023-06-01',
+                'content-type: application/json'
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $responseData = json_decode($response, true);
+
+        $content = $responseData['content'][0]['text'];
     return $content;
+
 }
 
 // Kullanım örneği

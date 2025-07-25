@@ -175,7 +175,7 @@ $payType    = $conn->escape_string($_POST["payType"]);  // total, additional, fi
         'quantity' => 1,
       ]],
       'mode' => 'payment',
-      'return_url' => "https://login.hsmaster.ai/PayConfirm/$orders_id/$token/$payType",
+      'return_url' => "https://shop.jetbasket.us/PayConfirm/$orders_id/$token/$payType",
     ]);
 
 

@@ -26,16 +26,6 @@ $resettoken         = isset($_POST["resettoken"]) ? $conn->escape_string($_POST[
 $now                = $conn->escape_string($_POST["now"]);
 $shipment_refund    = $conn->escape_string($_POST["shipment_refund"]); 
 
-$LogDescription= " Amount :" .  $amount . " Description :" .  $description;
-
-if (floatval($stripe_product_id) > 0) {
-    $LogDescription = "stripe_product_id :" .  $stripe_product_id . $LogDescription;
-}
-if (floatval($orders_id) > 0) {
-    $LogDescription = "orders_id :" .  $orders_id . $LogDescription;
-}
-
-f_log($user_id,  "Deposit Insert", $LogDescription,  1, $conn, false);
 
 
 //order_id varsa bir alis veris sonrasinda kullaniciya iade edilen bir ucret vardir

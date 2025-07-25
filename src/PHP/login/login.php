@@ -8,7 +8,7 @@ $email = $conn->escape_string($_GET["email"]);
 $password = $conn->escape_string($_GET["password"]);
 
 
-$sql = "Select id, name, picture_path, '' as token, activated, permission_level,email, mobile,
+$sql = "Select id, name, picture_path, '' as token, activated, permission_level,email, mobile, api_token,
         (select value from settings where `key`='service_fee') as service_fee 
         From user where email = '$email' and password = AES_ENCRYPT('$password', 'şifrıç.ş,üğişç.çölşipi*-0.iııııı')";
 
@@ -35,8 +35,10 @@ if ($result = $conn->query($sql)) {
                 echo "-1";
             }
         } catch (Exception $e) {
-            f_log($user_id,  "Login", "ERROR :" . $e->getMessage() . " user_ip_country_code :" .  $user_ip_country_code,  1, $conn, false);
+            f_log($user_id,  "Login", "ERROR :" . $e->getMessage() . " user_ip_country_code :" .  $user_ip_country_code, 1, $conn, false);
         }
+
+
 
         //Aktif edilmemis kullanici ise NA donder
         if ($row->activated == null) {
@@ -66,6 +68,6 @@ if ($result = $conn->query($sql)) {
 
 //Kayit yok    
 echo 'NO';
-f_log("000",  "Login", "FAIL :" . " with email : " . $email  . " and password: ". $password  ,  2, $conn, true);
+f_log("000",  "Login", "FAIL :" . " with email : " . $email  . " and password: ". $password,  2, $conn, false);
 $conn->close();
 return;

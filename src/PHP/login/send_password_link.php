@@ -30,7 +30,7 @@ if ($result = $conn -> query($sql)) {
         if (f_update($sql, $conn ) != -1){  
 
              if (send_mail_password_reset($email,$name, $token) == true){
-                 echo '1';
+                 echo 1;
                  return;
             };
         }
@@ -38,15 +38,13 @@ if ($result = $conn -> query($sql)) {
 	
     
 
-    echo '-1';
+    echo -1;
     $conn -> close();
 
 
 
-}    
- 	
- 	
-	
+}
 
-?> 
-
+echo 'NO';
+$conn -> close();
+?>

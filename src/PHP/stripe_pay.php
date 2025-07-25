@@ -22,8 +22,7 @@ if($_SERVER['REQUEST_METHOD']==='POST' && empty($_POST)) {
 
 //virgul nokta duzelt
 $amount   = $conn->escape_string($_POST["amount"]);
-$amount = number_format($amount, 2, '.', '');
-$amount = floatval(str_replace('.', '', $amount));
+
 
 
 //kullanici adini al
@@ -41,15 +40,15 @@ $stripe = new \Stripe\StripeClient($stripeSecretKey);
 
 
 $product = $stripe->products->create([
-    'name' => 'JetBasket',
-    'description' => "To: " . $name 
+    'name' => 'HsMaster',
+    'description' => $amount . ' credit' 
 ]);
 $product_id = $product->id;
 
 
 
 $price = $stripe->prices->create([
-  'unit_amount' => $amount,
+  'unit_amount' => intval($amount) * 0.5 ,
   'currency' => 'usd',
   'product' => $product_id,
 ]);
@@ -63,13 +62,18 @@ $checkout_session = $stripe->checkout->sessions->create([
     'quantity' => 1,
   ]],
   'mode' => 'payment',
-  'return_url' => "https://login.hsmaster.ai/DepositConfirm/$token_user_id/$product_id/$token.'-'.$amount",
+  'return_url' => "https://login.hsmaster.ai/PayConfirm/$token",
 ]);
 
 
     
 $sql = "update user set resettoken = '$token', resettokenexp = '$date' where id = $token_user_id";
 f_update($sql, $conn, false);
+
+
+$sql = "insert into deposit (user_id, date, paid_date, credit, stripe_product_id) VALUES ($token_user_id, '$date', null, ($amount / 0.5), '$product_id')";
+f_update($sql, $conn, true);
+
 
 
 echo json_encode(array('clientSecret' => $checkout_session->client_secret));
