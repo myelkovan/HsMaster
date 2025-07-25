@@ -1,0 +1,12 @@
+/* forcing vertical scroll
+html {
+  overflow-y: scroll;
+  max-width: 639px;
+}
+ */
+
+.appFooter {
+  padding-top: 16rem;
+  padding-left: '2rem';
+  font-size: 'small';
+}

@@ -1,0 +1,8 @@
+{
+  "StatusB" : "Bought",
+  "StatusA" : "Arrived",
+  "StatusP" : "In Progress",
+  "StatusT" : "In Transit",
+  "StatusC" : "Canceled"
+
+}

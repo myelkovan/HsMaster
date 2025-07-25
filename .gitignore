@@ -1,0 +1,10 @@
+node_modules/
+
+# Ignore any other files or directories you want
+FILES/
+public/
+!public/index.html
+build/
+Facades/
+utils/
+

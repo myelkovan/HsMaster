@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html style="height: 190px; width: 400px; border-radius: 50px;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../libs/bootstrap-5.1.1-dist/css/bootstrap.min.css">
+    <script type="module" src="popup.js" defer></script> <!-- External JS file -->
+    <style>
+        /* Style for the muted explanation text */
+        .bottom-message {
+            color: #343a40; /* Bootstrap's muted color */
+            font-size: 12px; /* Very small font size */
+            text-align: center; /* Center the text */
+            margin-top: 30px; /* Space above the text */
+            margin-left: 40px;
+            margin-right: 40px;
+            line-height: 1.2; /* Adjust line height for better readability */
+            decoration: underline
+        .bottom-message a {
+            color: #060B52; /* Bootstrap's primary blue color */
+            text-decoration: none; /* Remove underline from link */
+        }
+        .bottom-message a:hover {
+            text-decoration: underline; /* Add underline on hover */
+        }
+        body {
+            height: auto; /* Allow body to expand with new content */
+        }
+    </style>
+
+
+</head>
+<body style="background: linear-gradient(to bottom, #FFFFFF, #FFFFFF, #e5e8e3); height: 130px; width: 400px; border-radius: 20%;">
+
+<div style="margin-top: 50px; margin-left: 5px; margin-right: 5px;margin-bottom:5px;">
+    <!-- Buttons -->
+    <div style="text-align: center; margin-top: 35px; margin-bottom:5px;border-radius: 20px;">
+        <div style="text-align: center; margin-top: 35px; margin-bottom:10px">
+            <button id="send"   style="background-color: #9ad971; color: black; border: none;" class="btn btn-success">Send to </button>
+            <img src="https://jetbasket.us/shop/images/logo.png" style="width:180px; height:30px; margin-top: -3px; margin-left: 15px;">
+            <!-- <img src="https://jetbasket.us/wp-content/uploads/2024/10/Calisma-Yuzeyi-1-300x51.png-1-1.webp" style="width:180px; height:30px; margin-top: -3px; margin-left: 15px;"> -->
+        </div>
+    </div>
+    <div class="bottom-message">
+        Please open <a href="https://www.jetbasket.us" target="_blank">www.jetbasket.us</a> first.
+        <input id="Uyari" style="visibility: hidden;" value="open"/>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+

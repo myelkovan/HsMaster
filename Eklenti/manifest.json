@@ -1,0 +1,29 @@
+{
+   "action": {
+      "default_icon": "icons/icon16.png",
+      "default_popup": "ext/popup.html"
+   }, 
+   
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "js": [ "base.js", "content.js" ],
+      "matches": [ "*://*/*" ]
+   }, {
+      "js": [ "contentJetbasket.js" ],
+      "matches": [ "*://*.jetbasket.us/*" ]
+   } ],
+    
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqzKl/2eSrFZVck/Y9PoygcN2+b8uhevpRRKlAKyCbBs9VacLC/cltXdd+3pO8zDoFnjCz3aF+IWlM8kqxV4eAmqplTXjAWPcI7pllAAOmR6pYINRqSLuHjPMpdfjqoJZOl/ubEAX0LxJEhMDZVpKDF4UNujjKfxfRldIvGeL4Zb+2RbMuLENW/2wjwdgDvnlRmPBU5dgacVo5G6KaIERYl4hh9uHC9gRoSwP6zEosdBUpUD1MR+qfJZu+rnFlUO3dFsrVaoPimkRdoPjEB92HTFXhOwRRx7MYR/rO86OmgOxurhY3CS86sTRlRRmQSB6x2jfN0RDbPGdKFYnPvLP/QIDAQAB",
+   "manifest_version": 3,
+   "name": "JetBasket",
+   "permissions": [ "activeTab", "tabs", "storage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.2.8"
+}

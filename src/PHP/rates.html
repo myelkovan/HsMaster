@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #E8E8E8, #E8E8E8);
+            font-family: Arial, sans-serif;
+            /* display: flex; */
+            /* justify-content: center; */
+            /* align-items: center; */
+            /* height: 100vh; */
+            margin: 0;
+            padding:5px; /* Add some padding */
+            min-height: 50vh;
+        }
+
+        .container {
+          
+            padding: 5px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 3500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        }
+
+    
+
+        h1,
+        h2 {
+            color: white;
+            text-align: center;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition-duration: 0.4s;
+            width: 100%;
+        }
+
+        .btn-custom:hover {
+            background-color: #044183;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .row {
+            display: flex;
+      
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+
+      .form-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+    
+      .form-group label {
+        min-width: 100px;
+      }
+
+
+    </style>
+</head>
+
+<body style=" ">
+
+   
+    <div class="container">
+
+        <div >
+
+            <!-- From Section -->
+            <div class="mt-2">
+                <div class="row">
+
+
+
+                    <!-- Product Information Section -->
+                    <div class="mb-4">
+
+                        <div class="row">
+                            <div class="form-group">
+                            <div class="col-md-3 mb-2 ms-1 me-2" style="text-align : left">
+                                <label for="from-country">From:</label>
+                            </div>
+                            <div class="col-md-5 mb-1">
+                                <select id="from-country" class="form-select form-select form-select-sm" style="width: 155px;">
+                                    <option value="US" selected>United States</option>
+                                    <!--<option value="TR">Turkey</option>-->
+                                    <!--<option value="CA">Canada</option>-->
+                                    <!--<option value="GB">United Kingdom</option>-->
+                                    <!--<option value="AU">Australia</option>-->
+                                    <!--<option value="DE">Germany</option>-->
+                                    <!--<option value="FR">France</option>-->
+                                    <!--<option value="JP">Japan</option>-->
+                                    <!--<option value="CN">China</option>-->
+                                    <!--<option value="IN">India</option>-->
+                                </select>
+                            </div>
+                        </div>
+                         </div>
+
+
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                    <label for="from-zipcode">Zipcode:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="from-zipcode" class="form-control form-control-sm mb-1" style="width: 155px;"
+                                        placeholder="Enter zipcode" maxlength="10" value="08034">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                               <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                   <label title="Providing optional details may unlock more options.">Optional Fields:</label>
+                               </div>
+                               <div class="col-md-5">
+                                <button id="toggleFields" class="btn btn-outline-secondary"  title="Providing optional details may unlock more options.">
+                                    <span id="toggleIcon">▼</span> <!-- Başlangıçta aşağı ok -->
+                                </button>
+                               </div>
+                           </div>
+                       </div>
+<script>
+                        // Buton tıklanınca yeni fonksiyonu çağır
+    document.getElementById("toggleFields").addEventListener("click", function() {
+        toggleFieldsAction();
+    });
+    
+    
+    function toggleFieldsAction(action = null) {
+    
+        var optionalFields = document.getElementById("optionalFields");
+        var toggleIcon = document.getElementById("toggleIcon");
+        console.log("action1:", action);
+        // 📌 Eğer bir `action` parametresi varsa, direkt işlem yap
+        if (action === "open") {
+            optionalFields.style.display = "block"; 
+            setTimeout(() => {
+                optionalFields.style.opacity = "1"; 
+                optionalFields.style.maxHeight = "500px"; 
+                toggleIcon.textContent = "▲";
+            }, 100);
+            return;
+        }
+        console.log("action2:", action);
+        if (action === "close") {
+            optionalFields.style.opacity = "0"; 
+            optionalFields.style.maxHeight = "0"; 
+            setTimeout(() => {
+                optionalFields.style.display = "none"; 
+                toggleIcon.textContent = "▼"; 
+                document.querySelectorAll("#optionalFields input").forEach(input => {
+                    input.value = "";
+                });
+            }, 500);
+            return;
+        }
+    
+        console.log("action3:", action);
+    
+            if (optionalFields.style.display === "none" || optionalFields.style.opacity === "0") {
+                optionalFields.style.display = "block"; 
+                setTimeout(() => {
+                    optionalFields.style.opacity = "1"; 
+                    optionalFields.style.maxHeight = "500px"; 
+                    toggleIcon.textContent = "▲"; 
+                }, 100);
+            } else {
+                
+                optionalFields.style.opacity = "0"; 
+                optionalFields.style.maxHeight = "0"; 
+                setTimeout(() => {
+                    optionalFields.style.display = "none"; 
+                    toggleIcon.textContent = "▼"; 
+                    // Tüm input'ları sıfırla
+                    document.querySelectorAll("#optionalFields input").forEach(input => {
+                        input.value = "";
+                    });
+    
+    
+                }, 500);
+            }
+        }
+    
+        
+</script>
+                 
+                 
+<!-- Gizlenebilir Alanlar -->
+                <div id="optionalFields"  style="display: none; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.5s ease, max-height 0.5s ease;">
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="from-state" style="padding-left: 20px;">State:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="from-state" class="form-control form-control-sm mb-1" placeholder="Enter state (Optional)" style="width: 155px;"
+                                        maxlength="30" value="">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="from-city" style="padding-left: 20px;">City:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="from-city" class="form-control form-control-sm mb-1" placeholder="Enter city (Optional)" style="width: 155px;"
+                                        maxlength="50" value="">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="from-street" style="padding-left: 20px;">Adress:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="from-street" class="form-control form-control-sm mb-1" placeholder="Enter adress (Optional)" style="width: 155px;"
+                                        maxlength="100" value="">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+
+   
+                    <div class="row">
+                      <div class="form-group d-flex align-items-center ms-1 mb-1">
+                          <div class="col-md-3 mb-1" style="text-align: left;">
+                            <label for="length" style="margin: 0; font-size: 0.9rem;">WxLxH (in):</label>
+                          </div>
+                          
+                          <div class="d-flex align-items-center gap-1 ms-2">
+                            <!-- Width -->
+                            <input 
+                              type="text" 
+                              id="width" 
+                              class="form-control form-control-sm" 
+                              style="width: 40px; padding: 0.2rem;" 
+                              placeholder="W" 
+                              maxlength="5" 
+                              value="1"
+                            >
+                            
+                            <!-- X -->
+                            <span style="font-size: 0.9rem;">X</span>
+                            
+                            <!-- Length -->
+                            <input 
+                              type="text" 
+                              id="length" 
+                              class="form-control form-control-sm" 
+                              style="width: 40px; padding: 0.2rem;" 
+                              placeholder="L" 
+                              maxlength="5" 
+                              value="1"
+                            >
+                            
+                            <!-- X -->
+                            <span style="font-size: 0.9rem;">X</span>
+                            
+                            <!-- Height -->
+                            <input 
+                              type="text" 
+                              id="height" 
+                              class="form-control form-control-sm" 
+                              style="width: 40px; padding: 0.2rem;" 
+                              placeholder="H" 
+                              maxlength="5" 
+                              value="1"
+                            >
+                          </div>
+                        </div>
+                     </div>
+
+                        <div class="row">
+                             <div class="form-group">
+                            <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                <label for="weight">Weight (lb):</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" id="weight" class="form-control form-control-sm mb-1" style="width: 155px;"
+                                    placeholder="Enter weight" maxlength="10" value="1">
+                            </div>
+                        </div>
+                         </div>
+
+            
+                        <div class="row">
+                            <div class="form-group">
+                            <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                <label for="price">Price ($):</label>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" id="price" class="form-control form-control-sm mb-1" style="width: 155px;"
+                                    placeholder="Enter price" maxlength="10" value="10">
+                            </div>
+                             </div>
+                        </div>
+            
+            
+      
+                            
+                
+                
+                        <div class="row">
+                            <div class="form-group">
+                            <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                <label for="to-country">To:</label>
+                            </div>
+                            <div class="col-md-5">
+                                <select id="to-country" class="form-select form-select-sm mb-1" style="width: 155px;">
+                                    <option value="US">United States</option>
+                                    <option value="TR">Turkey</option>
+                                    <option value="CA" selected>Canada</option>
+                                    <option value="GB">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="FR">France</option>
+                                    <option value="JP">Japan</option>
+                                    <option value="CN">China</option>
+                                    <option value="IN">India</option>
+                                </select>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                             <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                    <label for="to-zipcode">Zipcode:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="to-zipcode" class="form-control form-control-sm mb-1" placeholder="Enter zipcode" style="width: 155px;"
+                                        maxlength="10" value="J2J 1V6">
+    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Açılır kapanır bölümü kontrol eden buton -->
+                        <div class="row">
+                            <div class="form-group">
+                               <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                   <label title="Providing optional details may unlock more options.">Optional Fields:</label>
+                               </div>
+                               <div class="col-md-5">
+                                <button id="toggleFields2" class="btn btn-outline-secondary"  title="Providing optional details may unlock more options.">
+                                    <span id="toggleIcon2">▼</span> <!-- Başlangıçta aşağı ok -->
+                                </button>
+                               </div>
+                           </div>
+                       </div>
+                       <script>
+                        document.getElementById("toggleFields2").addEventListener("click", function() {
+                            toggleFieldsAction2();
+                        });
+                        
+                        
+                        function toggleFieldsAction2(action = null) {
+                            var optionalFields = document.getElementById("optionalFields2");
+                            var toggleIcon = document.getElementById("toggleIcon2");
+                        
+                            // 📌 Eğer bir `action` parametresi varsa, direkt işlem yap
+                            if (action === "open") {
+                                optionalFields.style.display = "block"; 
+                                setTimeout(() => {
+                                    optionalFields.style.opacity = "1"; 
+                                    optionalFields.style.maxHeight = "500px"; 
+                                    toggleIcon.textContent = "▲";
+                                }, 100);
+                                return;
+                            }
+                            
+                            if (action === "close") {
+                                optionalFields.style.opacity = "0"; 
+                                optionalFields.style.maxHeight = "0"; 
+                                setTimeout(() => {
+                                    optionalFields.style.display = "none"; 
+                                    toggleIcon.textContent = "▼"; 
+                                    document.querySelectorAll("#optionalFields input").forEach(input => {
+                                        input.value = "";
+                                    });
+                                }, 500);
+                                return;
+                            }
+                        
+                                if (optionalFields.style.display === "none" || optionalFields.style.opacity === "0") {
+                                    optionalFields.style.display = "block"; 
+                                    setTimeout(() => {
+                                        optionalFields.style.opacity = "1"; 
+                                        optionalFields.style.maxHeight = "500px"; 
+                                        toggleIcon.textContent = "▲"; 
+                                    }, 100);
+                                } else {
+                                    optionalFields.style.opacity = "0"; 
+                                    optionalFields.style.maxHeight = "0"; 
+                                    setTimeout(() => {
+                                        optionalFields.style.display = "none"; 
+                                        toggleIcon.textContent = "▼";
+                                        // Tüm input'ları sıfırla
+                                        document.querySelectorAll("#optionalFields2 input").forEach(input => {
+                                            input.value = "";
+                                        });
+                                    }, 500);
+                                }
+                            }
+                        </script>
+
+<!-- Gizlenebilir Alanlar -->
+                <div id="optionalFields2"  style="display: none; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.5s ease, max-height 0.5s ease;">
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="to-state" style="padding-left: 20px;">State:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="to-state" class="form-control form-control-sm mb-1" placeholder="Enter state (Optional)" style="width: 155px;"
+                                        maxlength="30" value="">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="to-city" style="padding-left: 20px;">City:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="to-city" class="form-control form-control-sm mb-1" placeholder="Enter city (Optional)" style="width: 155px;"
+                                        maxlength="50" value="">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                                <div class="col-md-3 ms-1 me-2" style="text-align : left" >
+                                    <label for="to-street" style="padding-left: 20px;">Adress:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" id="to-street" class="form-control form-control-sm mb-1" placeholder="Enter adress (Optional)" style="width: 155px;"
+                                        maxlength="100" value="">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            
+                            <div class="col-md-3 ms-1 me-2" style="text-align : left">
+                                <button id="saveValues" class="btn btn-outline-secondary" title="Save (From & To) Values">💾</button>
+                                <button id="loadValues" class="btn btn-outline-primary" title="Load (From & To) Values">📥</button>
+                                <script>
+                                    function saveFormValues() {
+                                        let fromCountry = document.getElementById("from-country").value;
+                                        let fromZipcode = document.getElementById("from-zipcode").value;
+                                        let fromState = document.getElementById("from-state").value;
+                                        let fromCity = document.getElementById("from-city").value;
+                                        let fromStreet = document.getElementById("from-street").value;
+                                        
+                                        let toCountry = document.getElementById("to-country").value;
+                                        let toZipcode = document.getElementById("to-zipcode").value;
+                                        let toState = document.getElementById("to-state").value;
+                                        let toCity = document.getElementById("to-city").value;
+                                        let toStreet = document.getElementById("to-street").value;
+                                        
+                                        let values = {fromCountry,fromZipcode,fromState,fromCity,fromStreet,
+                                                        toCountry,toZipcode,toState,toCity,toStreet};
+                                
+                                        localStorage.setItem("savedRateFormValues", JSON.stringify(values));
+                                        //alert("Form değerleri başarıyla kaydedildi!");
+                                    }
+                                
+                                    function loadFormValues() {
+                                        let savedValues = localStorage.getItem("savedRateFormValues");
+                                        if (savedValues) {
+                                            let values = JSON.parse(savedValues);
+                                
+                                            document.getElementById("from-country").value = values.fromCountry || "";
+                                            document.getElementById("from-zipcode").value = values.fromZipcode || "";
+                                            document.getElementById("from-state").value = values.fromState || "";
+                                            document.getElementById("from-city").value = values.fromCity || "";
+                                            document.getElementById("from-street").value = values.fromStreet || "";
+                                            
+                                            document.getElementById("to-country").value = values.toCountry || "";
+                                            document.getElementById("to-zipcode").value = values.toZipcode || "";
+                                            document.getElementById("to-state").value = values.toState || "";
+                                            document.getElementById("to-city").value = values.toCity || "";
+                                            document.getElementById("to-street").value = values.toStreet || "";
+                                             // 📌 Eğer opsiyonel alanlardan biri doluysa, butonun click eventini çağır
+                                            if (values.fromState || values.fromCity || values.fromStreet) {
+                                                toggleFieldsAction("open");
+                                            }
+                                            if (values.toState || values.toCity || values.toStreet) {
+                                                toggleFieldsAction2("open");
+                                            }
+                                            //alert("Kaydedilmiş değerler geri yüklendi!");
+                                        } else {
+                                            //alert("Henüz kaydedilmiş değer yok!");
+                                        }
+                                    }
+                        
+                                   document.getElementById("saveValues").addEventListener("click", saveFormValues);
+                                    document.getElementById("loadValues").addEventListener("click", loadFormValues);
+                                 
+                                    //   Sayfa açıldığında otomatik olarak çalıştır
+                        document.addEventListener("DOMContentLoaded", () => {
+                            setTimeout(() => {
+                                loadFormValues(); // Varsa kayıtlı değerleri al
+                                }, 100);
+                        
+                           
+                        });
+                        
+                        
+                                </script>
+                                </div>
+                        
+                            <div class="col-md-5">
+                                <button id="search-button" class="btn btn-sm" 
+                                        style="background: linear-gradient(to right, #ff8a00, #da1b60); color: white; width: 190px; width: 155px;">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Results -->
+                    <div id="results"></div>
+
+                </div>
+
+            </div>
+            
+            
+            </div>
+            </div>
+            </div>
+            
+
+            <!-- Bootstrap 5 JS & Popper.js CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+            <script>
+                document.getElementById('search-button').addEventListener('click', async () => {
+                    //document.getElementById("loading-overlay").style.display = "flex"; // Show overlay
+                    const to = {
+                        country: document.getElementById('to-country').value,
+                        zipcode: document.getElementById('to-zipcode').value,
+                        state: document.getElementById('to-state').value,
+                        city: document.getElementById('to-city').value,
+                        street: document.getElementById('to-street').value
+                    };
+                    const from = {
+                        country: document.getElementById('from-country').value,
+                        zipcode: document.getElementById('from-zipcode').value,
+                        state: document.getElementById('from-state').value,
+                        city: document.getElementById('from-city').value,
+                        street: document.getElementById('from-street').value
+                    };
+                    const product = {
+                        weight: document.getElementById('weight').value,
+                        length: document.getElementById('length').value,
+                        width: document.getElementById('width').value,
+                        height: document.getElementById('height').value,
+                        price: document.getElementById('price').value
+                    };
+
+                    const requestData = {
+                        toCountry: to.country,
+                        toZipcode: to.zipcode,
+                        toState: to.state,
+                        toCity: to.city,
+                        toStreet: to.street,
+                        fromCountry: from.country,
+                        fromZipcode: from.zipcode,
+                        fromState: from.state,
+                        fromCity: from.city,
+                        fromStreet: from.street,
+                        weight: product.weight,
+                        length: product.length,
+                        width: product.width,
+                        height: product.height,
+                        price: product.price
+                    };
+
+                    const queryParams = new URLSearchParams(requestData).toString();
+
+                    try {
+                        const response = await fetch(`rates_for_Search.php?${queryParams}`);
+                        const data = await response.json();
+
+                        const resultsDiv = document.getElementById('results');
+                        resultsDiv.innerHTML = "";
+                        
+                        data.forEach((item) => {
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'result';
+                            resultItem.innerHTML = ` <p style="font-size: 0.85rem;" ><strong>${item.service_name}</strong></p>
+                                                     <p style="font-size: 0.95rem;" ><strong> $${(
+                                                                                        (!isNaN(parseFloat(item.shipment_cost)) ? parseFloat(item.shipment_cost) : 0) + 
+                                                                                        (!isNaN(parseFloat(item.custom_fee)) ? parseFloat(item.custom_fee) : 0)
+                                                                                        ).toFixed(2)}</strong></p>`;
+                            resultsDiv.appendChild(resultItem);
+                        });
+
+                    } catch (error) {
+                        alert('Error fetching data. Please try again.');
+                    } finally {
+                        //document.getElementById("loading-overlay").style.display = "none"; // Hide overlay
+                    }
+                });
+            </script>
+</body>
+
+</html>
