@@ -91,12 +91,17 @@ useEffect(() => {
 
 
 function of_findHSCode(){
-    getHsCode( description, user.api_token).then((response) => {
-        alert(response)
-        
-        alert(response[0].data.HsCode)
-         //xssetMessageBox1(true)
-         //setHscode(response.data.HsCode);
+    getHsCode( description, user.token).then((response) => {
+        // alert(response)
+        const data = response.HsCode;
+        const firstSuggestion = data && !isNaN(Number(data)) ? data : null;
+
+        console.log("hscode: " + firstSuggestion);
+        //alert(firstSuggestion);
+        NotificationManager.success("HSCode --> " + firstSuggestion, "", 4000)   
+        setHscode(firstSuggestion);
+        setMessageBox1(true)
+         
     }).catch(error => {NotificationManager.error(error,'Error')}); 
 }
 
