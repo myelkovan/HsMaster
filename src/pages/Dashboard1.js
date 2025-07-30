@@ -3,7 +3,7 @@ import withRouter from '../Components/Common/withRouter';
 import React, {useEffect, useState, useCallback} from "react";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
-import {Button, Card, CardBody, Col, Input, Container, Label, Modal, Form, ModalBody, Row, UncontrolledTooltip} from 'reactstrap';
+import {Button, Card, CardHeader, CardBody, Col, Input, Container, Label, Modal, Form, ModalBody, Row,Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap';
 import {MessageBox, saveAsXls} from './utils'
 import { ScaleLoader }  from 'react-spinners';
 import {getTokenCount} from "../services/service_deposit";
@@ -18,6 +18,7 @@ import { useDeposit } from './DepositContext';
 import {genarateApiToken} from "../services/service_user";
 import {getHsCode} from "../services/service_hscode";
 import * as utils from './utils';
+import classnames from "classnames";
 import { paid_update, stripe_pay } from '../services/service_stripe';
 const stripePromise = loadStripe("pk_live_51ReiV92MpVVabidVbGOtz3s0HGzw5y15wxKUOAyuoUcekwn9RwdxhscKOYXQcFHqH6GVYeycHo62xlpBLq6IdEsk00xAZhRQ26")
 
@@ -39,6 +40,7 @@ function Dashboard1(props){
     const [description, setDescription] = useState("");  
     const [hscode, setHscode] = useState(""); 
     const [messageBox1, setMessageBox1] = useState(false); 
+    const [activeTab, setActiveTab] = useState("PHP");
     const navigate = useNavigate();
         
 
@@ -145,8 +147,198 @@ const handleChange = (colname) => (e) => {
 };
 
 
- 
 
+
+const codeSamples = 
+  {
+    PHP: `<?php
+
+$product_description = "baby doll";
+$api_token = "YOUR API TOKEN";
+$url = "https://hsmaster.ai/api/v1/hscode-finder/description/" . urlencode($product_description);
+
+$ch = curl_init();
+$headers = [
+    "Authorization: Bearer $api_token",
+    "Referer: https://yoursite.com"
+];
+
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$response = curl_exec($ch);
+
+if ($response === false) {
+    echo json_encode(["error" => "API request failed.", "details" => curl_error($ch)]);
+    curl_close($ch);
+    exit;
+}
+
+curl_close($ch);
+$jsonResponse = json_decode($response, true);
+
+if ($jsonResponse === null) {
+    echo json_encode(["error" => "Invalid JSON response received.", "rawData" => $response]);
+} else {
+    echo json_encode($jsonResponse, JSON_PRETTY_PRINT);
+}`
+ ,
+    JavaScript: `import axios from 'axios';
+
+const productDescription = "baby doll";
+const apiToken = "YOUR API TOKEN";
+
+const fetchHSCode = async () => {
+  try {
+    const response = await axios.get(
+      \`https://hsmaster.ai/api/v1/hscode-finder/description/\${encodeURIComponent(productDescription)}\`,
+      {
+        headers: {
+          Authorization: \`Bearer \${apiToken}\`,
+          Referer: 'https://yoursite.com'
+        }
+      }
+    );
+
+    if (response.data) {
+      console.log("API response:", response.data);
+    } else {
+      console.error("Invalid JSON response");
+    }
+  } catch (error) {
+    console.error("API request failed:", error.message);
+  }
+};`
+,
+    Python: `import requests
+import urllib.parse
+
+product_description = "baby doll"
+api_token = "YOUR API TOKEN"
+encoded_description = urllib.parse.quote(product_description)
+url = f"https://hsmaster.ai/api/v1/hscode-finder/description/{encoded_description}"
+
+headers = {
+    "Authorization": f"Bearer {api_token}",
+    "Referer": "https://yoursite.com"
+}
+
+try:
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    json_response = response.json()
+    print("API response:", json_response)
+
+except requests.exceptions.HTTPError as http_err:
+    print({"error": "API request failed.", "details": str(http_err)})
+except ValueError:
+    print({"error": "Invalid JSON response", "rawData": response.text})
+except Exception as err:
+    print({"error": "Unexpected error occurred.", "details": str(err)})`
+
+    ,"C#": `using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+
+class Program {
+    static async Task Main() {
+        string productDescription = "baby doll";
+        string apiToken = "YOUR API TOKEN";
+        string encodedDescription = Uri.EscapeDataString(productDescription);
+        string url = $"https://hsmaster.ai/api/v1/hscode-finder/description/{encodedDescription}";
+
+        using (HttpClient client = new HttpClient()) {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+            client.DefaultRequestHeaders.Referrer = new Uri("https://yoursite.com");
+
+            try {
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("API response: " + jsonResponse);
+            } catch (HttpRequestException httpEx) {
+                Console.WriteLine($"API request failed. Details: {httpEx.Message}");
+            } catch (Exception ex) {
+                Console.WriteLine($"Unexpected error occurred. Details: {ex.Message}");
+            }
+        }
+    }
+}`
+ 
+    ,Java: `import okhttp3.*;
+
+public class HsCodeFetcher {
+    public static void main(String[] args) {
+        String productDescription = "baby doll";
+        String apiToken = "YOUR API TOKEN";
+        String url = "https://hsmaster.ai/api/v1/hscode-finder/description/" +
+                     java.net.URLEncoder.encode(productDescription, java.nio.charset.StandardCharsets.UTF_8);
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer " + apiToken)
+            .addHeader("Referer", "https://yoursite.com")
+            .get()
+            .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                System.out.println("API request failed: " + response.code());
+            } else {
+                System.out.println("API response: " + response.body().string());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}`
+  , Ruby:  `require 'net/http'
+require 'uri'
+require 'json'
+
+product_description = "baby doll"
+api_token = "YOUR API TOKEN"
+
+encoded_desc = URI.encode_www_form_component(product_description)
+url = URI("https://hsmaster.ai/api/v1/hscode-finder/description/#{encoded_desc}")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Authorization"] = "Bearer #{api_token}"
+request["Referer"] = "https://yoursite.com"
+
+begin
+  response = http.request(request)
+  if response.code == "200"
+    json_response = JSON.parse(response.body)
+    puts "API response: #{json_response}"
+  else
+    puts "API request failed: #{response.code}"
+  end
+rescue => e
+  puts "Error: #{e.message}"
+end`
+}
+
+  
+
+
+
+
+
+  
+  const tabChange = (lang) => {
+    setActiveTab(lang);
+  };
+
+  
 return (
 <React.Fragment>
 
@@ -405,7 +597,45 @@ return (
   </Card>
 </Row>
 
-   
+
+ <Row className="align-items-start mb-3">
+  <Card className="mt-3">
+      <CardHeader>
+        <Nav
+          className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
+          role="tablist"
+        >
+          {Object.keys(codeSamples).map((lang) => (
+            <NavItem key={lang}>
+              <NavLink
+                className={classnames({ active: activeTab === lang })}
+                onClick={() => tabChange(lang)}
+                role="button"
+              >
+                {lang}
+              </NavLink>
+            </NavItem>
+          ))}
+        </Nav>
+      </CardHeader>
+     <CardBody className="p-4">
+        <TabContent activeTab={activeTab}>
+          <TabPane tabId={activeTab}>
+            <Input
+              type="textarea"
+              className="form-control"
+              rows="15"
+              value={codeSamples[activeTab]}
+              readOnly
+            />
+          </TabPane>
+        </TabContent>
+      </CardBody>
+    </Card>
+</Row>
+
+
+
  
     </Container>
     </div>
