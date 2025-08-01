@@ -68,11 +68,11 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
-    if (user && user.token){    
-        of_getCounts()     
-    }
-  },[user]);
+useEffect(() => {
+if (user && user.token){    
+    of_getCounts()     
+}
+},[user]);
 
 
 useEffect(() => {
@@ -81,26 +81,31 @@ useEffect(() => {
 
 
 
-    // yukarida selected order set edilir ve setPay true yapilursa odeme sayfasini ac
-    const fetchClientSecret = useCallback(() => {
-        if (addAmount > 0) {
-            return stripe_pay(addAmount, user.token).then((response) => {
-               // alert(response)
-                return (response.clientSecret);
-            }).catch(error => NotificationManager.error(error, "", 4000));
-        }
-    }, [addAmount]);
+// yukarida selected order set edilir ve setPay true yapilursa odeme sayfasini ac
+const fetchClientSecret = useCallback(() => {
+    if (addAmount > 0) {
+        return stripe_pay(addAmount, user.token).then((response) => {
+            // alert(response)
+            return (response.clientSecret);
+        }).catch(error => NotificationManager.error(error, "", 4000));
+    }
+}, [addAmount]);
 
 
 function of_findHSCode(){
     getHsCode( description, user.token).then((response) => {
-        // alert(response)
+         //alert(JSON.stringify(response))
+        if (response.success === false){
+            NotificationManager.error(response.message, "", 4000);
+            return
+        }
         const data = response.HsCode;
         const firstSuggestion = data && !isNaN(Number(data)) ? data : null;
 
         console.log("hscode: " + firstSuggestion);
         //alert(firstSuggestion);
-        NotificationManager.success("HSCode --> " + firstSuggestion, "", 4000)   
+        of_creditUsed() 
+        NotificationManager.success("HSCode --> " + firstSuggestion, "", 4000)  
         setHscode(firstSuggestion);
         setMessageBox1(true)
          
@@ -117,6 +122,16 @@ function of_getCounts(){
          setCount(response);
     }).catch(error => {NotificationManager.error(error,'Error');setLoader(false)}); 
 }
+
+const of_creditUsed = () => {
+    setCount(prev => [
+    {
+        ...prev[0],
+        used_token_count: parseInt(prev[0].used_token_count) + 1
+    },
+    ...prev.slice(1)
+    ]);
+};
 
 function of_genarateApi(){
     genarateApiToken( user.token).then((response) => {
@@ -138,8 +153,6 @@ function of_close(){
 
     setPayModal(false)
 }
-
-
 
 const handleChange = (colname) => (e) => {
     setEditedRow({ ...editedRow, [colname]: e.target.value,
@@ -600,6 +613,14 @@ return (
 
  <Row className="align-items-start mb-3">
   <Card className="mt-3">
+
+    <div className="flex-shrink-0 mt-4 ms-4">
+        <h5 className={"fs-14 mb-0 text-success"}>
+           {props.t("Sample API Codes")}
+        </h5>
+    </div>
+
+
       <CardHeader>
         <Nav
           className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
