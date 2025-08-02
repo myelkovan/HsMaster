@@ -8,20 +8,20 @@ include("utils/jwt.php");
 //token gecerli degilse hata ver ve cik
 $ret = f_isTokenValid();
 $token_user_id = (int) $ret['user_id'];
-if ($ret['success'] == false || $token_user_id==null || $token_user_id == 0) {
-    echo "invalidToken";  
+if ($ret['success'] == false || $token_user_id == null || $token_user_id == 0) {
+    echo "invalidToken";
     return;
 }
 
 
 //gelen degerleri al
-$token=$conn->escape_string($_GET["token"]);
+$token = $conn->escape_string($_GET["token"]);
 $now = $conn->escape_string($_GET["now"]);
 
 if ($token == "x")
-    $sql = "UPDATE deposit SET paid_date = $now WHERE date = (select resettokenexp from user where id = $token_user_id and resettoken = '$token')"; 
+    $sql = "UPDATE deposit SET paid_date = $now WHERE date = (select resettokenexp from user where id = $token_user_id and resettoken is null )";
 else {
-    $sql = "UPDATE deposit SET paid_date = $now WHERE date = (select resettokenexp from user where id = $token_user_id )"; 
+    $sql = "UPDATE deposit SET paid_date = $now WHERE date = (select resettokenexp from user where id = $token_user_id and resettoken = '$token')";
 }
 $ret = f_update($sql, $conn, false);
 if ($ret < 0) {
@@ -29,4 +29,3 @@ if ($ret < 0) {
 }
 echo $ret;
 $conn->close();
-?> 

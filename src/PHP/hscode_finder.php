@@ -1,97 +1,93 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+//TEST EDERKEN ALTTAKI KODLARI AÇABİLİRSİN
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
-// Eğer preflight OPTIONS isteği gelirse, uygun yanıt dön
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+$allowed_origins = [
+    'http://localhost:3000',
+    'https://hsmaster.ai'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+} else {
     header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-    exit; // Boş yanıt göndererek işlemi sonlandır
 }
 
-// Asıl yanıt için CORS başlıkları ekle
-header("Access-Control-Allow-Origin: *");
+// Ortak header'lar — her istekte eklenecek
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json");
 
-
-function getHsCodeRealOpenAI_API($description)
-{
-
-    //$token = "JB-abd6b3c438040215867739a97aa9cb397b9d201a3bf74dc25718248cfe03774a"; // Göndermek istediğin token
-    $token = "HSC_bb62196dac3ecbb83f5dc5a434e0bf72"; // Göndermek istediğin token
-
-    //$url = "http://localhost/JB/PHP/hscode_finder_AI.php?description=" . urlencode($description);
-    $url = "https://hsmaster.ai/HSMASTER/PHP/hscode_finder_AI.php?description=" . urlencode($description);
-    $urlWithParams = $url; //. '?' . ($params);
-
-    //echo "url" . $url;
-    // cURL oturumu başlat
-    $ch = curl_init();
-
-    // Token içeren header ayarları
-    $headers = [
-        "Authorization: Bearer $token", // Bearer tipi, senin backend'ine göre değişebilir
-        "Content-Type: application/x-www-form-urlencoded", // Gerekirse ekle
-        "Referer: https://hsmaster.ai" // Burayı çağıran sayfanın URL’siyle değiştir // Gerekirse ekle
-    ];
-
-    // cURL ayarları
-    curl_setopt($ch, CURLOPT_URL, $urlWithParams);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Yanıtı döndür
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // SSL doğrulamasını devre dışı bırak
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // Header'ları ekliyoruz
-
-    // İsteği çalıştır
-    $response = curl_exec($ch);
-
-    // Hata kontrolü - JSON formatında döndür
-    if ($response === false) {
-        echo json_encode(["error" => "API çağrısı başarısız!", "details" => curl_error($ch)]);
-        curl_close($ch);
-        exit;
-    }
-
-    // cURL oturumunu kapat
-    curl_close($ch);
-
-    // JSON formatında döndür
-    //echo $response;
-
-
-
-    // Yanıtı döndür
-    return $response;
+// BU localden test ederken cors hatası alamamak için açılmalı
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Max-Age: 86400");
+    http_response_code(200);
+    exit();
 }
 
-//echo "geldim";
+include("utils/jwt.php");
 
-if (!isset($_GET["value"])) {
-    echo json_encode(["error" => "Eksik parametre: 'value'"]);
+//token gecerli degilse hata ver ve cik
+$ret = f_isTokenValid();
+$token_user_id = (int) $ret['user_id'];
+if ($ret['success'] == false || $token_user_id == null || $token_user_id == 0) {
+    echo "invalidToken";
+    return;
+}
+
+if (!isset($_GET["product_description"])) {
+    echo json_encode(["error" => "Eksik parametre"]);
     exit;
 }
 
 
+$product_description    = $_GET["product_description"];
+$token = "HSC_bb62196dac3ecbb83f5dc5a434e0bf72"; // Göndermek istediğin token
 
-$value    = $_GET["value"];
-//echo $value;
-if ($value === "") {
-    $value = "toilet paper";
+//$url = "https://hsmaster.ai/HSMASTER/PHP/hscode_finder_AI.php?description=" . urlencode($product_description);
+$url = "https://hsmaster.ai/api/v1/hscode-finder/description/" . urlencode($product_description);
+
+$ch = curl_init();
+
+// Token içeren header ayarları
+$headers = [
+    "Authorization: Bearer $token", // Bearer tipi, senin backend'ine göre değişebilir
+    "Referer: https://hsmaster.ai" // Burayı çağıran sayfanın URL’siyle değiştir // Gerekirse ekle
+];
+
+// cURL ayarları
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Yanıtı döndür
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // SSL doğrulamasını devre dışı bırak
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // Header'ları ekliyoruz
+
+// İsteği çalıştır
+$response = curl_exec($ch);
+echo $response;
+return;
+
+
+
+// Hata kontrolü - JSON formatında döndür
+if ($response === false) {
+    echo json_encode(["error" => "API request failed. Please try again later.", "details" => curl_error($ch)]);
+    curl_close($ch);
+    exit;
 }
-// Örnek kullanım
 
-//$response = getGtipSearch('en', $value, '2');
-$response = getHsCodeRealOpenAI_API($value);
+// cURL oturumunu kapat
+curl_close($ch);
 
-//echo "response" . $response;
-
+// Yanıtı döndür
 $jsonResponse = json_decode($response, true);
 
 if ($jsonResponse === null) {
-    echo json_encode(["error" => "Geçersiz JSON yanıtı!", "rawData" => $response]);
+    echo json_encode(["error" => "Invalid JSON response", "rawData" => $response]);
 } else {
     echo $response;
 }

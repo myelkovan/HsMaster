@@ -1,8 +1,8 @@
 <?php
 
-// Açıklayıcı sabit ile API anahtarını tanımla
-// const OPENAI_API_KEY = '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'; // ← Buraya kendi API anahtarını yaz
-const OPENAI_API_KEY = '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';
+require_once "utils/secrets.php";
+
+
 /**
  * OpenAI API üzerinden chat completion isteği gönderir.
  *
@@ -12,12 +12,15 @@ const OPENAI_API_KEY = 'sk-proj-dTbcFoCsmAQheUStgc2JGQFpTUtsGbd3hzpWDTH6dtZ-m8aB
  * @param float  $temperature    Yanıtın özgünlüğü (0.0-1.0)
  * @return string                OpenAI API yanıtı (JSON)
  */
-function callOpenAI($systemMessage, $userMessage, $maxTokens = 2, $temperature = 0.0)
+function callOpenAI($systemMessage, $userMessage, $maxTokens = 2, $temperature = 0.0, $model = "gpt-4o")
 {
+
+    global $openAISecretKey;
+
     $apiUrl = 'https://api.openai.com/v1/chat/completions';
 
     $data = [
-        'model' => 'gpt-4o',
+        'model' =>      $model,   //'gpt-4-turbo',  // ürün yasaklı mı kontrollerinde bunu kullanınca chatgpt ile aynı sonuçları alıyoruz. ama iki kat daha pahalı ve biraz daha yavaş.
         'messages' => [
             ['role' => 'system', 'content' => $systemMessage],
             ['role' => 'user', 'content' => $userMessage]
@@ -29,7 +32,7 @@ function callOpenAI($systemMessage, $userMessage, $maxTokens = 2, $temperature =
     $options = [
         'http' => [
             'header'  => "Content-type: application/json\r\n" .
-                "Authorization: Bearer " . OPENAI_API_KEY . "\r\n",
+                "Authorization: Bearer " . $openAISecretKey . "\r\n",
             'method'  => 'POST',
             'content' => json_encode($data),
             'ignore_errors' => true

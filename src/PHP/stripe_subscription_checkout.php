@@ -2,6 +2,7 @@
 // Stripe Checkout kullanarak abonelik yönetimi için PHP API
 require '../PHP/utils/GuzzleHttp/vendor/autoload.php';
 require_once "utils/stripe/init.php";
+require_once "utils/secrets.php";
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -12,7 +13,7 @@ use Stripe\Checkout\Session;
 use Stripe\Subscription;
 
 
-$stripeSecretKey = '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';    //  OZON
+
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
@@ -66,7 +67,7 @@ try {
  */
 function createCheckoutSession($input)
 {
-   
+
 
     if ($input['price_id'] === "1") {
         $price_id = 'price_1RPkv3L7zncsEWkGYMmhbSIg'; //STARTER PAKET  
@@ -77,29 +78,29 @@ function createCheckoutSession($input)
     } elseif ($input['price_id'] === "4") {
         $price_id = 'price_1RPlS4L7zncsEWkGLfjr3vRU'; //ENTERPRİSE PAKET  
     }
-     $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "http://localhost/shop/PHP/"; // Tarayıcıdan gelen kaynak
+    $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "http://localhost/shop/PHP/"; // Tarayıcıdan gelen kaynak
 
     $session = Session::create([
         'ui_mode' => 'embedded',    // Embedded UI modu
         'mode' => 'subscription',  // Abonelik modu
         'payment_method_types' => ['card'],
         'line_items' => [[
-            'price' => $price_id, 
+            'price' => $price_id,
             'quantity' => 1,
         ]],
         'return_url' => $input['success_url'] . '?session_id={CHECKOUT_SESSION_ID}', // Ödeme başarılı dönüş URL'ine sesionid yi gönder. o sayfada da gelen sesion id ile sorgu yapıp gelen bilgileri abonelikId si v.b veritabanına kaydet.
         'subscription_data' => ['trial_period_days' => 14],     // Deneme süresi ne kadar sa buraya o yazılacak. yok ise kaldırılacak
-       // subscription_data için daha fazla parametre vermek için 
+        // subscription_data için daha fazla parametre vermek için 
         // Altta ki parametreler isteğe ögre veya iş kurallarına göre eklenilebilir.
         // 'subscription_data' => [
         //     'trial_period_days' => 14, // 14 günlük ücretsiz kullanım
         //     'payment_behavior' => 'allow_incomplete', // Ödeme teyit edilmese veya  tamamlanmasa bile test başlasın. dikkat deneme 
         //     'trial_settings' => ['end_behavior' => ['missing_payment_method' => 'cancel']] // Ödeme olmazsa aboneliği iptal et veya burada pause da kullanılabilir.
         // ]
-     ]);
+    ]);
     // client tarafında ki embeddedProvider bizden stripe taraınfa oluşturduğumuz client_secret ı istiyor.
     // Bu şekilde client_secret a  göre ekranı otomatik olarak oluşturacak ve kullanıcıya otomatik bir şekilde ekranı açacak.
-    echo json_encode(array('clientSecret' =>  $session->client_secret)); 
+    echo json_encode(array('clientSecret' =>  $session->client_secret));
 }
 
 /**

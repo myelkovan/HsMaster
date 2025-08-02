@@ -65,7 +65,7 @@ if ($result = $conn->query($sql)) {
 
         //credi yok
         if (intval($total_token_count) - intval($used_token_count) < intval($productCount)) {
-            $return_error = "Request rejected: remaining usage count is lower than required.";
+            $return_error = "Request rejected: You don not have enough credit.";
             f_hs_errorResponse($user_id, $request_time, $endpoint, $actionName, $input_value, $return_error, $conn, $start_time);
         }
 
