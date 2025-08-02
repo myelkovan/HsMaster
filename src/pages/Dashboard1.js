@@ -396,8 +396,13 @@ return (
                     </div>
                     <div className="d-flex flex-column">
                     <div className="flex-shrink-0">
-                        <h5 className={"fs-14 mb-0 text-success"}>                                             
-                            <i className={"fs-13 align-middle " + "ri-arrow-right-up-line"}></i> {parseInt(count[0].total_token_count)} %
+                        <h5 className="fs-14 mb-0 text-white">
+                            <i className="fs-13 align-middle ri-arrow-right-up-line"></i>
+                                {
+                                    count[0].total_token_count > 0
+                                    ? Math.round((count[0].total_token_count / count[0].total_token_count) * 100) + "%"
+                                    : "0%"
+                                }
                         </h5>
                     </div>
                     <div className="flex-shrink-0">
@@ -442,8 +447,13 @@ return (
                     </div>
                     <div className="d-flex flex-column">
                     <div className="flex-shrink-0">
-                        <h5 className={"fs-14 mb-0 text-success"}>
-                            <i className={"fs-13 align-middle " + "ri-arrow-right-up-line"}></i> {parseInt(count[0].used_token_count)} %
+                        <h5 className="fs-14 mb-0 text-white">
+                            <i className="fs-13 align-middle ri-arrow-right-up-line"></i>
+                                {
+                                    count[0].total_token_count > 0
+                                    ? Math.round((count[0].used_token_count / count[0].total_token_count) * 100) + "%"
+                                    : "0%"
+                                }
                         </h5>
                     </div>
                      <div className="flex-shrink-0">
@@ -488,8 +498,13 @@ return (
                     </div>
                     <div className="d-flex flex-column">
                     <div className="flex-shrink-0">
-                        <h5 className={"fs-14 mb-0 text-success"}>                                             
-                            <i className={"fs-13 align-middle " + "ri-arrow-right-up-line"}></i> {parseInt(count[0].total_token_count) - parseInt(count[0].used_token_count)} %
+                       <h5 className="fs-14 mb-0 text-white">
+                            <i className="fs-13 align-middle ri-arrow-right-up-line"></i>
+                            {
+                                count[0].total_token_count > 0
+                                ? Math.round(((count[0].total_token_count - count[0].used_token_count) / count[0].total_token_count) * 100) + "%"
+                                : "0%"
+                            }
                         </h5>
                     </div>
                     <div className="flex-shrink-0">
