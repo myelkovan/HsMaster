@@ -16,6 +16,7 @@ import {loadStripe} from "@stripe/stripe-js";
 import {getDeposit, getDepositList} from "../services/service_deposit";
 import { useDeposit } from './DepositContext'; 
 import {genarateApiToken} from "../services/service_user";
+import {getRestrictedProductSearch} from '../services/service_restrictedProduct';
 import {getHsCode} from "../services/service_hscode";
 import * as utils from './utils';
 import classnames from "classnames";
@@ -91,6 +92,30 @@ const fetchClientSecret = useCallback(() => {
     }
 }, [addAmount]);
 
+ const fetchRestrictedProduct = async (from,to) => {
+            try {
+                 const response = await getRestrictedProductSearch( description,from,to, user.token);
+                  if (response.success === false){
+                    NotificationManager.error(response.message, "", 4000);
+                    return
+                }
+                 console.log("getRestrictedProductSearch-->response: " + JSON.stringify(response))   
+                 const data =   response.Status;
+                console.log("restrictionStatus SON: " + data )
+                if (data === "Allowed"){
+                     NotificationManager.success( "From " + from + " to " + to + "                   For this product                        RestrictionStatus is  " + data, "", 4000)   
+                }else{
+                    NotificationManager.error( "From " + from + " to " + to + "                   For this product                        RestrictionStatus is  " + data, "", 4000)  
+                }
+                of_creditUsed() 
+                 return data;
+
+            } catch (error) {
+                 console.log('Hata oluştu:', error);
+                  NotificationManager.error("Status --> " + error, "", 4000)   
+                 return null;
+             }
+         };
 
 function of_findHSCode(){
     getHsCode( description, user.token).then((response) => {
@@ -548,17 +573,28 @@ return (
     <CardBody>
 
 
-      <div className="d-flex justify-content-end align-items-center gap-2 mt-2 mb-2">
-         <Input type="textarea" className="form-control" id="messageinput" 
-                        rows="2"
+     <div className="d-flex gap-3 mt-2 mb-2 align-items-start">
+        {/* Sol: Textarea */}
+        <Input type="textarea" className="form-control" id="messageinput"
+                        rows="4"
                         placeholder = {props.t("Enter your product description")}
-                        onChange={e => setDescription(e.target.value)}/>
-        <button  type="button"
-          className="btn btn-success"  style={{ width: '170px' }} id="search" onClick={() => of_findHSCode()}
-        >
-          {props.t("Find HS Code")}
-        </button>
-      </div>
+                        onChange={e => setDescription(e.target.value)}
+                        style={{ width: '100%' }}/>
+        {/* Sağ: Butonlar alt alta */}
+        <div className="d-flex flex-column gap-2">
+            <button  type="button"
+              className="btn btn-success"  style={{ width: '170px' }} id="search" onClick={() => of_findHSCode()}
+            >
+               {props.t("Find HS Code")}
+            </button>
+
+            <button type="button"
+              className="btn btn-success"  style={{ width: '170px' }} id="search" onClick={() => fetchRestrictedProduct("USA", "CANADA")}
+            >
+              {props.t("Scan for Restrictions (USA to CANADA)")}
+            </button>
+        </div>
+</div>
     </CardBody>
   </Card>
 </Row>
